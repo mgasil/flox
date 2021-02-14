@@ -36,12 +36,20 @@
     public function downloadImages($poster, $backdrop)
     {
       if($poster) {
-        LaravelStorage::put($poster, file_get_contents(config('services.tmdb.poster') . $poster));
-        LaravelStorage::disk('subpage')->put($poster, file_get_contents(config('services.tmdb.poster_subpage') . $poster));
+
+        if(is_readable(config('services.tmdb.poster') . $poster)) {
+            LaravelStorage::put($poster, file_get_contents(config('services.tmdb.poster') . $poster));
+            LaravelStorage::disk('subpage')->put($poster, file_get_contents(config('services.tmdb.poster_subpage') . $poster));
+        }
+
       }
 
       if($backdrop) {
-        LaravelStorage::disk('backdrop')->put($backdrop, file_get_contents(config('services.tmdb.backdrop') . $backdrop));
+
+        if(is_readable(config('services.tmdb.backdrop') . $backdrop)) {
+            LaravelStorage::disk('backdrop')->put($backdrop, file_get_contents(config('services.tmdb.backdrop') . $backdrop));
+        }
+
       }
     }
 
