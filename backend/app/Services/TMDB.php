@@ -345,29 +345,6 @@
     }
 
     /**
-     * Get current count of seasons.
-     *
-     * @param $id
-     * @param $mediaType
-     * @return integer | null
-     */
-    private function tvSeasonsCount($id, $mediaType)
-    {
-      if($mediaType == 'tv') {
-        $response = $this->requestTmdb($this->base . '/3/tv/' . $id);
-
-        $seasons = collect(json_decode($response->getBody())->seasons);
-
-        return $seasons->filter(function ($season) {
-          // We don't need pilots
-          return $season->season_number > 0;
-        })->count();
-      }
-
-      return null;
-    }
-
-    /**
      * Get all episodes of each season.
      *
      * @param $tmdbId
@@ -375,13 +352,14 @@
      */
     public function tvEpisodes($tmdbId)
     {
-      $seasons = $this->tvSeasonsCount($tmdbId, 'tv');
+      $tvResponse = $this->requestTmdb($this->base . '/3/tv/' . $tmdbId);
+      $seasons = collect(json_decode($tvResponse->getBody())->seasons);
       $data = [];
 
-      for($i = 1; $i <= $seasons; $i++) {
-        $response = $this->requestTmdb($this->base . '/3/tv/' . $tmdbId . '/season/' . $i);
+      foreach($seasons as $season) {
+        $response = $this->requestTmdb($this->base . '/3/tv/' . $tmdbId . '/season/' . $season->season_number);
 
-        $data[$i] = json_decode($response->getBody());
+        $data[$season->season_number] = json_decode($response->getBody());
       }
 
       return $data;
